@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>XHR Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        button {
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        pre {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .error {
+            color: red;
+        }
+
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>XMLHttpRequest Test</h1>
+    <div>
+        <button id="testButton">Test API with XHR</button>
+    </div>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('testButton').addEventListener('click', function () {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<p>Testing API with XMLHttpRequest...</p>';
+
+            const xhr = new XMLHttpRequest();
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        resultDiv.innerHTML = `
+                            <h3 class="success">Success!</h3>
+                            <p>Status: ${xhr.status}</p>
+                            <pre>${xhr.responseText}</pre>
+                        `;
+                    } else {
+                        resultDiv.innerHTML = `
+                            <h3 class="error">Error!</h3>
+                            <p>Status: ${xhr.status}</p>
+                            <p>Status Text: ${xhr.statusText}</p>
+                        `;
+                    }
+                }
+            };
+
+            xhr.onerror = function (error) {
+                console.error('XHR Error:', error);
+                resultDiv.innerHTML = `
+                    <h3 class="error">Network Error!</h3>
+                    <p>The request could not be completed due to a network error.</p>
+                `;
+            };
+
+            xhr.open('GET', 'http://localhost:5000/api/health/liveness', true);
+            xhr.setRequestHeader('Cache-Control', 'no-cache');
+            xhr.timeout = 5000;
+            xhr.ontimeout = function () {
+                resultDiv.innerHTML = `
+                    <h3 class="error">Timeout Error!</h3>
+                    <p>The request timed out after 5 seconds.</p>
+                `;
+            };
+
+            try {
+                xhr.send();
+                console.log('XHR request sent');
+            } catch (error) {
+                console.error('Error sending XHR:', error);
+                resultDiv.innerHTML = `
+                    <h3 class="error">Send Error!</h3>
+                    <p>${error.message}</p>
+                `;
+            }
+        });
+    </script>
+</body>
+
+</html>

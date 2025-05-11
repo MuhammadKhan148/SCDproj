@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>API Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        button {
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        pre {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .error {
+            color: red;
+        }
+
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>API Test</h1>
+    <div>
+        <input type="text" id="apiUrl" value="http://localhost:5000/api/health/liveness" style="width: 300px;">
+        <button id="testButton">Test API</button>
+        <button id="fetchButton">Fetch with Browser API</button>
+    </div>
+    <div id="result"></div>
+
+    <script>
+        const resultDiv = document.getElementById('result');
+        const apiUrlInput = document.getElementById('apiUrl');
+
+        document.getElementById('testButton').addEventListener('click', async () => {
+            resultDiv.innerHTML = '<p>Testing API with Axios...</p>';
+            const url = apiUrlInput.value;
+
+            try {
+                console.log('Sending request to:', url);
+                const response = await axios.get(url, {
+                    headers: {
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache'
+                    },
+                    timeout: 5000
+                });
+                console.log('Response received:', response);
+                resultDiv.innerHTML = `
+                    <h3 class="success">Success!</h3>
+                    <p>Status: ${response.status}</p>
+                    <pre>${JSON.stringify(response.data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                console.error('Error details:', error);
+                resultDiv.innerHTML = `
+                    <h3 class="error">Error!</h3>
+                    <p>Message: ${error.message}</p>
+                    <p>Code: ${error.code || 'N/A'}</p>
+                    <pre>${JSON.stringify(error.response?.data || {}, null, 2)}</pre>
+                `;
+            }
+        });
+
+        document.getElementById('fetchButton').addEventListener('click', async () => {
+            resultDiv.innerHTML = '<p>Testing API with Fetch...</p>';
+            const url = apiUrlInput.value;
+
+            try {
+                console.log('Sending fetch request to:', url);
+                const response = await fetch(url, {
+                    headers: {
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache'
+                    }
+                });
+                const data = await response.json();
+                console.log('Fetch response received:', data);
+                resultDiv.innerHTML = `
+                    <h3 class="success">Success!</h3>
+                    <p>Status: ${response.status}</p>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                console.error('Fetch error details:', error);
+                resultDiv.innerHTML = `
+                    <h3 class="error">Error!</h3>
+                    <p>Message: ${error.message}</p>
+                    <pre>${error.stack || 'No stack trace available'}</pre>
+                `;
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"  # Changed back to 5000:5000 since the port is now available
+      - "3000:3000"  # Frontend (static files served through Express)
+    environment:
+      - NODE_ENV=development
+      - MONGO_URI=mongodb://mongo:27017/k8s-demo
+      - PORT=5000
+      - K8S_CLUSTER=docker-compose
+      - APP_VERSION=1.0.0
+      - DEPLOYMENT_ID=local-dev
+    depends_on:
+      - mongo
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:6.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    restart: unless-stopped
+
+volumes:
+  mongo-data:
